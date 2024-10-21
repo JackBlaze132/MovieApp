@@ -1,30 +1,53 @@
+# Nombre del pipeline
+name: 'CI-Pipeline-SpringBoot'
+
+# Definir el pool de agentes
+pool:
+  name: 'Self-hosted'  # Cambia este nombre si tu pool tiene otro nombre
+
+# Disparador para iniciar el pipeline automáticamente en cada push a la rama main
 trigger:
   branches:
     include:
-      - main  # Rama principal que activará el pipeline
+      - main  # Cambia esto si trabajas en otra rama
 
-pool:
-  vmImage: 'ubuntu-latest'  # Usar una imagen de Ubuntu
-
+# Fases del pipeline
 steps:
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'  # Ubicación del archivo pom.xml
-    goals: 'clean install'   # Limpiar y construir el proyecto
-    options: '-X'            # Activar la salida de depuración
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'  # Cambiar según tu versión de Java
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    mavenOpts: '-Xmx1024m'
+  # Paso 1: Comprobar la versión de Java
+  - script: |
+      java -version
+    displayName: 'Comprobar versión de Java'
 
-- task: ArchiveFiles@2  # Crear un archivo .zip con el resultado
-  inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/target'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/movieapp.zip'
-    replaceExistingArchive: true
+  # Paso 2: Instalar dependencias Maven
+  - task: Maven@3
+    inputs:
+      mavenPomFile: 'pom.xml'  # Asegúrate de que la ruta del archivo POM sea correcta
+      goals: 'clean install'
+    displayName: 'Instalar dependencias y compilar con Maven'
 
-- publish: $(Build.ArtifactStagingDirectory)/movieapp.zip
-  artifact: drop
+  # Paso 3: Ejecutar pruebas unitarias
+  - task: Maven@3
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'test'
+    displayName: 'Ejecutar pruebas unitarias'
+
+  # Paso 4: Empaquetar el proyecto (opcional)
+  - task: Maven@3
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'package'
+    displayName: 'Empaquetar el proyecto'
+
+  # Paso 5: Publicar resultados de pruebas (si existen)
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+    displayName: 'Publicar resultados de las pruebas'
+
+  # Paso 6: Publicar el archivo .jar generado como artefacto
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)/target/*.jar'  # Ruta hacia el .jar generado
+      artifact: 'drop'
+    displayName: 'Publicar artefacto generado (.jar)'
