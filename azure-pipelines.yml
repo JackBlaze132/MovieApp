@@ -1,0 +1,30 @@
+trigger:
+  branches:
+    include:
+      - main  # Rama principal que activará el pipeline
+
+pool:
+  vmImage: 'ubuntu-latest'  # Usar una imagen de Ubuntu
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'  # Ubicación del archivo pom.xml
+    goals: 'clean install'   # Limpiar y construir el proyecto
+    options: '-X'            # Activar la salida de depuración
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'  # Cambiar según tu versión de Java
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    mavenOpts: '-Xmx1024m'
+
+- task: ArchiveFiles@2  # Crear un archivo .zip con el resultado
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)/target'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/movieapp.zip'
+    replaceExistingArchive: true
+
+- publish: $(Build.ArtifactStagingDirectory)/movieapp.zip
+  artifact: drop
