@@ -3,13 +3,13 @@ name: 'CI-Pipeline-SpringBoot'
 
 # Definir el pool de agentes
 pool:
-  name: 'Self-hosted'  # Cambia este nombre si tu pool tiene otro nombre
+  name: 'Self-hosted'  # Asegúrate de que el nombre del pool sea correcto
 
-# Disparador para iniciar el pipeline automáticamente en cada push a la rama main
+# Disparador para iniciar el pipeline automáticamente en cada push a la rama master
 trigger:
   branches:
     include:
-      - main  # Cambia esto si trabajas en otra rama
+      - master  # Cambiado de "main" a "master"
 
 # Fases del pipeline
 steps:
