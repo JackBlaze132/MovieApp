@@ -1,0 +1,73 @@
+# Nombre del pipeline CI/CD
+name: 'CI-CD-Pipeline-SpringBoot'
+
+# Disparador para ejecutar el pipeline cuando se hagan cambios en la rama master
+trigger:
+  branches:
+    include:
+      - master  # Cambia a "main" si tu rama principal se llama "main"
+
+# Configuración del pool de agentes (puedes usar self-hosted o Azure-hosted)
+pool:
+  name: 'Self-hosted'
+
+# Definición de las etapas y pasos
+stages:
+  - stage: BuildAndPackage
+    displayName: 'Compilar y empaquetar'
+    jobs:
+      - job: Build
+        displayName: 'Compilar proyecto Java con Maven'
+
+        steps:
+          # Paso 1: Comprobar la versión de Java y Maven
+          - script: |
+              java -version
+              mvn -v
+            displayName: 'Verificar Java y Maven'
+
+          # Paso 2: Instalar dependencias con Maven y compilar sin ejecutar pruebas
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'clean install -DskipTests'
+            displayName: 'Instalar dependencias y compilar con Maven (sin ejecutar pruebas)'
+
+          # Paso 3: Empaquetar el proyecto
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'package -DskipTests'
+            displayName: 'Empaquetar el proyecto con Maven (sin ejecutar pruebas)'
+
+          # Paso 4: Publicar el artefacto generado (.jar)
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/target/MovieApp-0.0.1-SNAPSHOT.jar'  # Apunta a la ruta correcta del .jar
+              artifact: 'drop'
+            displayName: 'Publicar artefacto .jar'
+
+  - stage: DeployToAzure
+    displayName: 'Desplegar en Azure'
+    dependsOn: BuildAndPackage  # Asegura que este stage se ejecute después de compilar y empaquetar
+
+    jobs:
+      - job: Deploy
+        displayName: 'Desplegar a Azure Web App'
+
+        steps:
+          # Paso 1: Descargar el artefacto del pipeline de CI
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              buildType: 'current'
+              artifactName: 'drop'
+              targetPath: '$(System.DefaultWorkingDirectory)'  # Lugar donde se descarga el artefacto
+
+          # Paso 2: Desplegar a la aplicación web de Azure
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'App'  # El nombre de la conexión de servicio que creaste en Azure DevOps
+              appType: 'webApp'
+              appName: 'MovieApp'  # El nombre de tu aplicación en Azure
+              package: '$(System.DefaultWorkingDirectory)/MovieApp-0.0.1-SNAPSHOT.jar'  # Ruta al archivo .jar
+              runtimeStack: 'JAVA|17-java-se'  # Stack de ejecución para Java 17
