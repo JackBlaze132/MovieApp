@@ -1,0 +1,32 @@
+# CD Pipeline: Despliegue a Azure Web App
+name: 'CD-Pipeline-SpringBoot'
+
+trigger:
+  branches:
+    include:
+      - master  # Dispara cuando se hace commit a la rama master (puede ser "main" también)
+
+stages:
+  - stage: DeployToAzure
+    displayName: 'Desplegar en Azure'
+    jobs:
+      - job: Deploy
+        displayName: 'Desplegar a Azure Web App'
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          # Paso 1: Descargar el artefacto del pipeline de CI
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: 'drop'
+              path: '$(Pipeline.Workspace)/drop'
+            displayName: 'Descargar artefacto .jar'
+
+          # Paso 2: Desplegar a Azure Web App
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'App'  # Nombre de la conexión de servicio creada
+              appName: 'MovieApp'  # Nombre de tu aplicación web en Azure
+              package: '$(Pipeline.Workspace)/drop/MovieApp-0.0.1-SNAPSHOT.jar'
+            displayName: 'Desplegar aplicación en Azure Web App'
