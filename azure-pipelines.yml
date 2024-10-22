@@ -3,7 +3,7 @@ name: 'CI-Pipeline-SpringBoot'
 
 # Configuración del pool de agentes (self-hosted)
 pool:
-  name: 'Self-hosted'  # Asegúrate de que el nombre del pool sea correcto
+  name: 'Self-hosted'  # Asegúrate de que el pool coincide con el que configuraste
 
 # Disparador para ejecutar el pipeline cuando se hagan cambios en la rama master
 trigger:
@@ -44,11 +44,13 @@ steps:
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+      testRunTitle: 'Resultados de las pruebas unitarias'  # Opcional: añade un título
     displayName: 'Publicar resultados de las pruebas'
 
   # Paso 6: Publicar el artefacto generado (.jar)
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(System.DefaultWorkingDirectory)/target/*.jar'  # Ruta hacia el archivo .jar generado
-      artifact: 'drop'
+      artifactName: 'drop'
+      publishLocation: 'pipeline'
     displayName: 'Publicar artefacto .jar'
