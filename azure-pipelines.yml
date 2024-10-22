@@ -9,21 +9,24 @@ pool:
 trigger:
   branches:
     include:
-      - master
+      - master  # Cambia a "main" si tu rama principal se llama "main"
 
 # Definición de las etapas y pasos
 steps:
+  # Paso 1: Comprobar la versión de Java y Maven
   - script: |
       java -version
       mvn -v
     displayName: 'Verificar Java y Maven'
 
+  # Paso 2: Instalar dependencias con Maven y compilar
   - task: Maven@3
     inputs:
-      mavenPomFile: 'pom.xml'
+      mavenPomFile: 'pom.xml'  # Asegúrate de que esta ruta apunte al archivo POM en tu proyecto
       goals: 'clean install'
     displayName: 'Instalar dependencias y compilar con Maven'
 
+  # Paso 3: Ejecutar pruebas unitarias
   - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
