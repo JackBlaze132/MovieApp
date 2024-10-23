@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2  # Toma el código del repositorio
+      - name: Checkout code with full history
+        uses: actions/checkout@v2  # Usa la acción de checkout
+        with:
+          fetch-depth: 0  # Clona todo el historial de git para habilitar git push
 
       - name: Set up JDK 17  # Configurar Java 17 (ajústalo si usas otra versión)
         uses: actions/setup-java@v2
