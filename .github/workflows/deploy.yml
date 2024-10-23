@@ -41,7 +41,7 @@ jobs:
         run: mvn package
 
       - name: Upload JAR artifact  # Subir el archivo JAR generado como artefacto
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Actualizamos a la versión v3
         with:
           name: jar-file
           path: target/*.jar  # El JAR se generará en la carpeta target
