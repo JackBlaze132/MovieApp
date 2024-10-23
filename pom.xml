@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,23 +16,22 @@
     <description>MovieApp</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>17</java.version>  <!-- Configura Java 17 -->
     </properties>
 
     <dependencies>
-        <!-- Spring Data JPA -->
+        <!-- Dependencias de Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Spring Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring DevTools -->
+        <!-- DevTools para desarrollo -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -40,60 +39,60 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- MySQL Connector -->
+        <!-- Conector para MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version> <!-- Añadida versión específica -->
             <scope>runtime</scope>
         </dependency>
 
-        <!-- H2 Database (for testing) -->
+        <!-- Base de datos en memoria para pruebas -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Boot Starter Test (solo una vez, eliminada duplicación) -->
+        <!-- Pruebas unitarias -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- Lombok -->
+        <!-- Lombok (opcional) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version> <!-- Versión específica de Lombok -->
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Spring Boot Maven Plugin -->
+            <!-- Plugin de compilación para Maven, configurado para Java 17 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>  <!-- Actualizado a una versión más reciente -->
+                <configuration>
+                    <source>17</source>  <!-- Usar Java 17 como fuente -->
+                    <target>17</target>  <!-- Usar Java 17 como destino -->
+                </configuration>
+            </plugin>
+
+            <!-- Plugin de Spring Boot para empaquetar la aplicación -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>repackage</goal> <!-- Reempaquetar para generar JAR -->
+                            <goal>repackage</goal>  <!-- Asegurar que se genere el JAR ejecutable -->
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
