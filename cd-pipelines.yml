@@ -1,0 +1,38 @@
+# Nombre del pipeline de CD
+name: 'CD-Pipeline-SpringBoot'
+
+# Disparador para ejecutar el pipeline cuando se publiquen artefactos o se hagan cambios en la rama master
+trigger:
+  branches:
+    include:
+      - master  # Cambia a "main" si tu rama principal se llama "main"
+
+# Definición de las etapas
+stages:
+  - stage: DeployToAzure
+    displayName: 'Desplegar en Azure'
+    jobs:
+      - job: Deploy
+        displayName: 'Desplegar a Azure Web App'
+        
+        # Configuración del pool de agentes (puedes usar self-hosted o Azure-hosted)
+        pool:
+           name: 'Self-hosted'
+
+        steps:
+          # Paso 1: Descargar el artefacto del pipeline de CI
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              buildType: 'current'
+              artifactName: 'drop'
+              targetPath: '$(System.DefaultWorkingDirectory)'  # Lugar donde se descarga el artefacto
+
+          # Paso 2: Desplegar a la aplicación web de Azure
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'App'  # El nombre de la conexión de servicio que creaste en Azure DevOps
+              appType: 'webApp'          # Tipo de aplicación
+              appName: 'MovieApp'        # El nombre de tu aplicación en Azure
+              package: '$(System.DefaultWorkingDirectory)/MovieApp-0.0.1-SNAPSHOT.jar'  # Ruta al archivo .jar
+              runtimeStack: 'JAVA|17-java-se'  # Stack de ejecución para Java 17
+
