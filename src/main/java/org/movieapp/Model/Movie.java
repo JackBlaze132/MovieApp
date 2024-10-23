@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class Movie {
 
     /**
-     * The unique identifier for the movie.
+     * The unaique identifier for the movie.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
