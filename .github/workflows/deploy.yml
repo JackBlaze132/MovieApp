@@ -10,10 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code with full history
-        uses: actions/checkout@v2  # Usa la acción de checkout
-        with:
-          fetch-depth: 0  # Clona todo el historial de git para habilitar git push
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up JDK 17  # Configurar Java 17 (ajústalo si usas otra versión)
         uses: actions/setup-java@v2
@@ -43,14 +41,18 @@ jobs:
         run: mvn package
 
       - name: Upload JAR artifact  # Subir el archivo JAR generado como artefacto
-        uses: actions/upload-artifact@v3  # Actualizamos a la versión v3
+        uses: actions/upload-artifact@v3
         with:
           name: jar-file
-          path: target/*.jar  # El JAR se generará en la carpeta target
+          path: target/*.jar
 
-      - name: Deploy to Heroku  # Desplegar a Heroku
+      - name: Install Heroku CLI  # Instalar Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Deploy to Heroku  # Desplegar a Heroku usando Heroku CLI
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Usa el API Key de Heroku guardado en los secretos
         run: |
-          git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
-          git push heroku master  # O main, según sea tu rama principal
+          heroku auth:token
+          heroku deploy:jar target/*.jar --app ${{ secrets.HEROKU_APP_NAME }}
