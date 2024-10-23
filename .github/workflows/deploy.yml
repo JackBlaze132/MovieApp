@@ -1,9 +1,9 @@
-name: CI/CD Pipeline for Spring Boot App
+name: CI-Pipeline-SpringBoot
 
 on:
   push:
     branches:
-      - master  # Ejecutar el pipeline cuando haya un push en la rama main
+      - master  # O main, si tu rama principal se llama "main"
 
 jobs:
   build:
@@ -11,30 +11,44 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  # Toma el código del repositorio
 
-      - name: Set up Java
+      - name: Set up JDK 17  # Configurar Java 17 (ajústalo si usas otra versión)
         uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'  # Java 11
-          java-version: '11'
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Cache Maven dependencies
+      - name: Verify Java and Maven versions
+        run: |
+          java -version
+          mvn -v
+
+      - name: Cache Maven packages  # Cachear las dependencias de Maven para acelerar el build
         uses: actions/cache@v2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven
 
-      - name: Build with Maven
+      - name: Install dependencies and compile with Maven  # Instalar dependencias y compilar
         run: mvn clean install
 
-      - name: Run Tests
+      - name: Run unit tests  # Ejecutar pruebas unitarias
         run: mvn test
 
-      - name: Deploy to Heroku
+      - name: Package the application  # Empaquetar la aplicación en un archivo JAR
+        run: mvn package
+
+      - name: Upload JAR artifact  # Subir el archivo JAR generado como artefacto
+        uses: actions/upload-artifact@v2
+        with:
+          name: jar-file
+          path: target/*.jar  # El JAR se generará en la carpeta target
+
+      - name: Deploy to Heroku  # Desplegar a Heroku
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}  # Usa el API Key de Heroku guardado en los secretos
         run: |
-          git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME}}.git
-          git push heroku main
+          git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+          git push heroku master  # O main, según sea tu rama principal
