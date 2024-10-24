@@ -1,5 +1,5 @@
 # Etapa 1: Build de la aplicación con Maven y OpenJDK 17
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 
 # Establecer el directorio de trabajo
 WORKDIR /app
