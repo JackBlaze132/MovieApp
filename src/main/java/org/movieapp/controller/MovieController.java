@@ -16,7 +16,7 @@ import java.util.Optional;
  * Provides endpoints for retrieving, adding, updating, and deleting movies.
  */
 @RestController
-@RequestMapping("/movies")
+@RequestMapping("/peliculas")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"})
 public class MovieController {
 
